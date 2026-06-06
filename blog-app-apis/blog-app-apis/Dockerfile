@@ -1,8 +1,8 @@
 # Build stage
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+COPY blog-app-apis/blog-app-apis/pom.xml .
+COPY blog-app-apis/blog-app-apis/src ./src
 RUN mvn clean package -DskipTests
 
 # Run stage
