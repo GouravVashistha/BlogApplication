@@ -26,26 +26,27 @@ public class UserController {
     }
 
     @PutMapping("/updateUser/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable("userId") Integer userId) throws InvalidMailException {
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO,
+            @PathVariable("userId") Integer userId) throws InvalidMailException {
         UserDTO updateUser = this.userService.updateUser(userDTO, userId);
         return ResponseEntity.ok(updateUser);
     }
 
-    //    @PreAuthorize("hasRole('ADMIN_USER')")
+    // @PreAuthorize("hasRole('ADMIN_USER')")
     @DeleteMapping("/deleteUser/{userId}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer userId) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Integer userId) {
         this.userService.deleteUser(userId);
         return new ResponseEntity<ApiResponse>(new ApiResponse("User Deleted Successfully", true), HttpStatus.OK);
     }
 
-    //    @PreAuthorize("hasRole('NORMAL_USER') or hasRole('ROLE_ADMIN')")
+    // @PreAuthorize("hasRole('NORMAL_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/AllUsers")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(this.userService.getAllUsers());
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getSingleUser(@PathVariable Integer userId) {
+    public ResponseEntity<UserDTO> getSingleUser(@PathVariable("userId") Integer userId) {
         return ResponseEntity.ok(this.userService.getUserById(userId));
     }
 

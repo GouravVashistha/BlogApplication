@@ -38,13 +38,15 @@ public class GlobalExceptionHandler {
 
     // Access Denied
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<ApiResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+    public ResponseEntity<ApiResponse> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex) {
         return buildResponse("Unauthorized: " + ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
-        return buildResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        ex.printStackTrace();
+        return buildResponse("Something went wrong: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ApiResponse> buildResponse(String message, HttpStatus status) {

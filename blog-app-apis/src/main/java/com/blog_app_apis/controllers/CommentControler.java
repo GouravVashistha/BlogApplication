@@ -13,18 +13,16 @@ public class CommentControler {
     @Autowired
     private CommentService commentService;
 
-
     @PostMapping("/post/{post-id}/comments/{user-id}")
     public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO comment,
-                                                    @PathVariable("post-id") Integer postId,
-                                                    @PathVariable("user-id") Integer userId) {
+            @PathVariable("post-id") Integer postId,
+            @PathVariable("user-id") Integer userId) {
         CommentDTO createComment = this.commentService.createComment(comment, postId, userId);
         return new ResponseEntity<CommentDTO>(createComment, HttpStatus.CREATED);
     }
 
-
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<ApiResponse> deleteComment(@PathVariable Integer commentId) {
+    public ResponseEntity<ApiResponse> deleteComment(@PathVariable("commentId") Integer commentId) {
         this.commentService.deleteComment(commentId);
         return new ResponseEntity<ApiResponse>(new ApiResponse("Deleted Comment Successfully !!", true), HttpStatus.OK);
     }

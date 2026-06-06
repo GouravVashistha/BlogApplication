@@ -18,39 +18,38 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    //  CREATE
+    // CREATE
     @PostMapping
     public ResponseEntity<CategroyDTO> createCategory(@Valid @RequestBody CategroyDTO categroyDTO) {
         CategroyDTO createdCategory = categoryService.createCategory(categroyDTO);
         return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
 
-    //  UPDATE
+    // UPDATE
     @PutMapping("/{categoryId}")
     public ResponseEntity<CategroyDTO> updateCategory(
             @Valid @RequestBody CategroyDTO categroyDTO,
-            @PathVariable Integer categoryId) {
+            @PathVariable("categoryId") Integer categoryId) {
 
         CategroyDTO updatedCategory = categoryService.updateCategory(categroyDTO, categoryId);
         return ResponseEntity.ok(updatedCategory);
     }
 
-    //  DELETE
+    // DELETE
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Integer categoryId) {
+    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable("categoryId") Integer categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok(
-                new ApiResponse("Category deleted successfully!", true)
-        );
+                new ApiResponse("Category deleted successfully!", true));
     }
 
-    //  GET BY ID
+    // GET BY ID
     @GetMapping("/{categoryId}")
-    public ResponseEntity<CategroyDTO> getCategory(@PathVariable Integer categoryId) {
+    public ResponseEntity<CategroyDTO> getCategory(@PathVariable("categoryId") Integer categoryId) {
         return ResponseEntity.ok(categoryService.getCategory(categoryId));
     }
 
-    //  GET ALL
+    // GET ALL
     @GetMapping
     public ResponseEntity<List<CategroyDTO>> getAllCategory() {
         return ResponseEntity.ok(categoryService.getCategories());
