@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService';
 import { getAllPosts, deletePost } from '../services/postService';
+import * as userService from '../services/userService';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('categories'); // 'categories' or 'posts'
+  const [activeTab, setActiveTab] = useState('categories'); // 'categories', 'posts', or 'users'
   const [categories, setCategories] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [users, setUsers] = useState([]);
   
   // Loading & Error states
   const [loadingCats, setLoadingCats] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -31,6 +34,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     loadCategories();
     loadPosts(0);
+    loadUsers();
   }, []);
 
   const loadCategories = async () => {
@@ -63,6 +67,55 @@ const AdminDashboard = () => {
       setError('Failed to load system posts.');
     } finally {
       setLoadingPosts(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const data = await userService.getAllUsers();
+      setUsers(data || []);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load registered users.');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handlePromoteUser = async (userId, name) => {
+    if (window.confirm(`Are you sure you want to promote ${name} to Administrator?`)) {
+      setError('');
+      setSuccess('');
+      setActionLoading(true);
+      try {
+        await userService.promoteUserToAdmin(userId);
+        setSuccess(`${name} promoted to Admin successfully!`);
+        await loadUsers();
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.message || `Failed to promote ${name} to Admin.`);
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (userId, name) => {
+    if (window.confirm(`Are you sure you want to delete user ${name}? This action is permanent.`)) {
+      setError('');
+      setSuccess('');
+      setActionLoading(true);
+      try {
+        await userService.deleteUser(userId);
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        setSuccess(`User ${name} deleted successfully!`);
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.message || `Failed to delete user ${name}.`);
+      } finally {
+        setActionLoading(false);
+      }
     }
   };
 
@@ -197,6 +250,26 @@ const AdminDashboard = () => {
         </div>
       </section>
 
+      {/* Stats Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '25px', marginTop: '20px' }}>
+        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>📂 Total Categories</span>
+          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)' }}>{categories.length}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>📝 Total Articles</span>
+          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#a5b4fc' }}>{postPageInfo.totalElements}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>👥 Registered Users</span>
+          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--success)' }}>{users.length}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>🛡️ Total Admins</span>
+          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--accent)' }}>{users.filter(u => u.roles && u.roles.some(r => r.name === 'ADMIN_USER')).length}</span>
+        </div>
+      </div>
+
       {/* Tabs Switcher */}
       <div style={{ display: 'flex', gap: '15px', marginBottom: '25px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px' }}>
         <button
@@ -220,6 +293,17 @@ const AdminDashboard = () => {
           style={{ borderRadius: '20px', padding: '8px 20px', fontSize: '0.9rem', fontWeight: 600 }}
         >
           📝 Article Moderator ({postPageInfo.totalElements})
+        </button>
+        <button
+          className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => {
+            setActiveTab('users');
+            setError('');
+            setSuccess('');
+          }}
+          style={{ borderRadius: '20px', padding: '8px 20px', fontSize: '0.9rem', fontWeight: 600 }}
+        >
+          👥 User Access Manager ({users.length})
         </button>
       </div>
 
@@ -422,6 +506,100 @@ const AdminDashboard = () => {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB CONTENTS: USER ACCESS MANAGER */}
+      {activeTab === 'users' && (
+        <div className="glass-panel" style={{ padding: '25px' }}>
+          <h3 style={{ marginBottom: '20px' }}>Registered User Directory</h3>
+          {loadingUsers ? (
+            <p style={{ color: 'var(--text-muted)' }}>Loading users list...</p>
+          ) : users.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No registered users found.</p>
+          ) : (
+            <div className="admin-posts-table-wrapper" style={{ overflowX: 'auto' }}>
+              <table className="admin-posts-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', marginBottom: '20px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border-glass)' }}>
+                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)', fontWeight: 600 }}>Name</th>
+                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)', fontWeight: 600 }}>Email</th>
+                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)', fontWeight: 600 }}>About</th>
+                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)', fontWeight: 600 }}>Roles</th>
+                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => {
+                    const isAdmin = u.roles && u.roles.some((r) => r.name === 'ADMIN_USER');
+                    return (
+                      <tr key={u.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                        <td style={{ padding: '15px 8px', fontWeight: 500, color: '#fff' }}>
+                          {u.name}
+                        </td>
+                        <td style={{ padding: '15px 8px', color: 'var(--text-muted)' }}>{u.email}</td>
+                        <td style={{ padding: '15px 8px', color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {u.about || 'N/A'}
+                        </td>
+                        <td style={{ padding: '15px 8px' }}>
+                          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                            {u.roles && u.roles.map((role) => (
+                              <span
+                                key={role.id}
+                                className="category-tag"
+                                style={{
+                                  fontSize: '0.75rem',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  background: role.name === 'ADMIN_USER' 
+                                    ? 'rgba(244, 63, 94, 0.15)' 
+                                    : 'rgba(99, 102, 241, 0.15)',
+                                  color: role.name === 'ADMIN_USER' 
+                                    ? 'var(--accent)' 
+                                    : 'var(--primary)',
+                                  border: role.name === 'ADMIN_USER'
+                                    ? '1px solid rgba(244, 63, 94, 0.3)'
+                                    : '1px solid rgba(99, 102, 241, 0.3)'
+                                }}
+                              >
+                                {role.name === 'ADMIN_USER' ? '🛡️ Admin' : '👤 User'}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td style={{ padding: '15px 8px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                            {!isAdmin ? (
+                              <button
+                                onClick={() => handlePromoteUser(u.id, u.name)}
+                                className="btn btn-primary btn-sm"
+                                style={{ padding: '4px 10px', fontSize: '0.75rem', background: 'linear-gradient(135deg, var(--success) 0%, #059669 100%)' }}
+                                disabled={actionLoading}
+                              >
+                                🛡️ Promote to Admin
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 10px' }}>
+                                Already Admin
+                              </span>
+                            )}
+                            <button
+                              onClick={() => handleDeleteUser(u.id, u.name)}
+                              className="btn btn-danger btn-sm"
+                              style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                              disabled={actionLoading}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
