@@ -50,4 +50,10 @@ public class UserController {
         return ResponseEntity.ok(this.userService.getUserById(userId));
     }
 
+    @PutMapping("/{userId}/assign-admin")
+    public ResponseEntity<UserDTO> assignAdminRole(@PathVariable("userId") Integer userId) {
+        UserDTO updatedUser = this.userService.assignAdminRole(userId);
+        return ResponseEntity.ok(updatedUser);
+    }
+
 }

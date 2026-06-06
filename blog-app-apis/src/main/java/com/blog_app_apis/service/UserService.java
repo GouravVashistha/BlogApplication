@@ -17,4 +17,6 @@ public interface UserService {
     void deleteUser(Integer userId);
 
     UserDTO registerNewUser(UserDTO userDto);
+
+    UserDTO assignAdminRole(Integer userId);
 }

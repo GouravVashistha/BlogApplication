@@ -190,6 +190,20 @@ public class UserServiceImpl implements UserService {
         User newuser = this.userRepo.save(user);
         return this.modelMapper.map(newuser, UserDTO.class);
     }
+    @Override
+    public UserDTO assignAdminRole(Integer userId) {
+        log.info("Promoting user with ID: {} to Admin role", userId);
+        User user = getUserOrThrow(userId);
+        
+        Role adminRole = this.roleRepository.findById(AppConstants.ADMIN_USER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "id", AppConstants.ADMIN_USER));
+        
+        user.getRoles().add(adminRole);
+        User updatedUser = this.userRepo.save(user);
+        
+        log.info("✅ User with ID: {} successfully promoted to Admin", userId);
+        return this.modelMapper.map(updatedUser, UserDTO.class);
+    }
 
 
     private User getUserOrThrow(Integer userId) {
