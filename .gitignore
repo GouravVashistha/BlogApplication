@@ -16,6 +16,7 @@
 *.sw?
 
 # ### Spring Boot Backend ###
+target/
 blog-app-apis/target/
 blog-app-apis/.mvn/wrapper/maven-wrapper.jar
 blog-app-apis/!**/src/main/**/target/
@@ -32,6 +33,8 @@ blog-app-apis/!**/src/main/**/build/
 blog-app-apis/!**/src/test/**/build/
 
 # ### React Frontend ###
+.vite/
+blog-app-react/.vite/
 blog-app-react/node_modules/
 blog-app-react/dist/
 blog-app-react/dist-ssr/
