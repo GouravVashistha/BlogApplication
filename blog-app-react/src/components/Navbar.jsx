@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 const Navbar = () => {
   const { isLoggedIn, user, logoutUser } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,10 +18,12 @@ const Navbar = () => {
     } else {
       navigate('/');
     }
+    setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
     logoutUser();
+    setIsMenuOpen(false);
     navigate('/login');
   };
 
@@ -29,7 +32,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <Link to="/" className="logo">
+        <Link to="/" className="logo" onClick={() => setIsMenuOpen(false)}>
           <span style={{ color: 'var(--primary)' }}>🚀</span>
           <span className="gradient-text">BlogSpace</span>
         </Link>
@@ -48,9 +51,20 @@ const Navbar = () => {
           </button>
         </form>
 
-        <ul className="nav-menu">
+        {/* Hamburger Menu Toggle Button */}
+        <button 
+          className={`nav-toggle ${isMenuOpen ? 'open' : ''}`} 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          aria-label="Toggle navigation"
+        >
+          <span className="hamburger-bar"></span>
+          <span className="hamburger-bar"></span>
+          <span className="hamburger-bar"></span>
+        </button>
+
+        <ul className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <li>
-            <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
+            <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
           </li>
@@ -58,23 +72,23 @@ const Navbar = () => {
           {isLoggedIn ? (
             <>
               <li>
-                <Link to="/create-post" className={`nav-item ${isActive('/create-post') ? 'active' : ''}`}>
+                <Link to="/create-post" className={`nav-item ${isActive('/create-post') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                   Create Post
                 </Link>
               </li>
               <li>
-                <Link to="/profile" className={`nav-item ${isActive('/profile') ? 'active' : ''}`}>
+                <Link to="/profile" className={`nav-item ${isActive('/profile') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                   Dashboard
                 </Link>
               </li>
               {isAdmin && (
                 <li>
-                  <Link to="/admin" className={`nav-item ${isActive('/admin') ? 'active' : ''}`}>
+                  <Link to="/admin" className={`nav-item ${isActive('/admin') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                     Admin Panel
                   </Link>
                 </li>
               )}
-              <li className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li className="nav-item user-info-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="author-avatar" style={{ width: '24px', height: '24px', fontSize: '0.75rem' }}>
                   {user?.name ? user.name[0].toUpperCase() : 'U'}
                 </span>
@@ -84,7 +98,7 @@ const Navbar = () => {
                 </span>
               </li>
               <li>
-                <button onClick={handleLogout} className="btn btn-secondary btn-sm">
+                <button onClick={handleLogout} className="btn btn-secondary btn-sm logout-btn">
                   Logout
                 </button>
               </li>
@@ -92,12 +106,12 @@ const Navbar = () => {
           ) : (
             <>
               <li>
-                <Link to="/login" className="btn btn-secondary btn-sm">
+                <Link to="/login" className="btn btn-secondary btn-sm" onClick={() => setIsMenuOpen(false)} style={{ width: '100%' }}>
                   Login
                 </Link>
               </li>
               <li>
-                <Link to="/register" className="btn btn-primary btn-sm">
+                <Link to="/register" className="btn btn-primary btn-sm" onClick={() => setIsMenuOpen(false)} style={{ width: '100%' }}>
                   Register
                 </Link>
               </li>

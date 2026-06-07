@@ -752,3 +752,145 @@ textarea.form-control {
   color: var(--text-muted);
   font-size: 0.85rem;
 }
+
+/* Responsive Layout overrides */
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger-bar {
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-main);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+
+  .search-bar {
+    width: 150px;
+    margin-right: 8px;
+  }
+
+  .search-bar:focus-within {
+    width: 180px;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-toggle.open .hamburger-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .nav-toggle.open .hamburger-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle.open .hamburger-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 24px 16px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+  }
+
+  .nav-menu.open {
+    max-height: 500px;
+    opacity: 1;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .nav-menu li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-item {
+    display: block;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    width: 100%;
+  }
+
+  .nav-item.active::after {
+    bottom: 4px;
+    left: 45%;
+    right: 45%;
+  }
+
+  .user-info-item {
+    justify-content: center;
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding-top: 90px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+    gap: 16px;
+  }
+
+  .form-wrapper {
+    padding: 20px;
+  }
+
+  .auth-wrapper {
+    padding: 24px 16px;
+    margin: 20px auto;
+  }
+
+  .post-detail-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
