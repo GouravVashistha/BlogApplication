@@ -811,10 +811,10 @@ textarea.form-control {
     top: 70px;
     left: 0;
     right: 0;
-    background: var(--bg-glass);
+    background: rgba(15, 23, 42, 0.96);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid var(--border-glass);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     align-items: stretch;
