@@ -174,4 +174,26 @@ public class PostServiceImple implements PostService {
                 .collect(Collectors.toList());
         return postDtos;
     }
+
+    @Override
+    public PostDTO updatePostImage(Integer postId, String imageName, byte[] imageData) {
+        Post post = this.postRepo.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postId));
+        post.setImageName(imageName);
+        post.setImageData(imageData);
+        Post updatedPost = this.postRepo.save(post);
+        return this.modelMapper.map(updatedPost, PostDTO.class);
+    }
+
+    @Override
+    public byte[] getPostImage(String imageName) throws java.io.FileNotFoundException {
+        List<Post> posts = this.postRepo.findByImageName(imageName);
+        if (!posts.isEmpty()) {
+            Post post = posts.get(0);
+            if (post.getImageData() != null) {
+                return post.getImageData();
+            }
+        }
+        throw new java.io.FileNotFoundException("Image not found in database: " + imageName);
+    }
 }

@@ -23,6 +23,9 @@ public class Post {
 
     private String imageName;
 
+    @Column(name = "image_data")
+    private byte[] imageData;
+
     private Date addDate;
 
     @ManyToOne

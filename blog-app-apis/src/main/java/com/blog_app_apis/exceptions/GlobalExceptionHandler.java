@@ -1,6 +1,7 @@
 package com.blog_app_apis.exceptions;
 
 import com.blog_app_apis.dtos.ApiResponse;
+import java.io.FileNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +15,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // File/Image Not Found
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleFileNotFound(FileNotFoundException ex) {
+        return buildResponse("Image or file not found: " + ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // Invalid Email

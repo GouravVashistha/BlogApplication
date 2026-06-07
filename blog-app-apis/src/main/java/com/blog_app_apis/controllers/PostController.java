@@ -16,6 +16,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -112,10 +113,8 @@ public class PostController {
     @PostMapping("/post/image/upload/{postId}")
     public ResponseEntity<PostDTO> uploadPostImage(@RequestParam("image") MultipartFile image,
             @PathVariable("postId") Integer postId) throws IOException {
-        PostDTO postDto = this.postService.getPostById(postId);
         String fileName = this.fileService.uploadImage(path, image);
-        postDto.setImageName(fileName);
-        PostDTO updatePost = this.postService.updatePost(postDto, postId);
+        PostDTO updatePost = this.postService.updatePostImage(postId, fileName, image.getBytes());
         return new ResponseEntity<PostDTO>(updatePost, HttpStatus.OK);
     }
 
@@ -125,10 +124,17 @@ public class PostController {
     @GetMapping(value = "/post/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public void downloadImage(@PathVariable("imageName") String imageName, HttpServletResponse response)
             throws IOException {
-        InputStream resource = this.fileService.getResource(path, imageName);
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        StreamUtils.copy(resource, response.getOutputStream());
-
+        try {
+            // Try fetching from database first
+            byte[] imageData = this.postService.getPostImage(imageName);
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            response.getOutputStream().write(imageData);
+        } catch (FileNotFoundException dbEx) {
+            // Fallback to local filesystem
+            InputStream resource = this.fileService.getResource(path, imageName);
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            StreamUtils.copy(resource, response.getOutputStream());
+        }
     }
 
 }

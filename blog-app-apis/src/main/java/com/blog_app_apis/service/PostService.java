@@ -35,6 +35,11 @@ public interface PostService {
     List<PostDTO> getPostByUser(Integer userId);
 
     // Search Post
-
     List<PostDTO> searchPosts(String keyword);
+
+    // Update Post Image with binary data
+    PostDTO updatePostImage(Integer postId, String imageName, byte[] imageData);
+
+    // Get Post Image binary data by imageName
+    byte[] getPostImage(String imageName) throws java.io.FileNotFoundException;
 }
