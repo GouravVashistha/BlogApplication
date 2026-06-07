@@ -187,12 +187,9 @@ public class PostServiceImple implements PostService {
 
     @Override
     public byte[] getPostImage(String imageName) throws java.io.FileNotFoundException {
-        List<Post> posts = this.postRepo.findByImageName(imageName);
-        if (!posts.isEmpty()) {
-            Post post = posts.get(0);
-            if (post.getImageData() != null) {
-                return post.getImageData();
-            }
+        List<byte[]> list = this.postRepo.findImageDataByImageName(imageName);
+        if (!list.isEmpty() && list.get(0) != null) {
+            return list.get(0);
         }
         throw new java.io.FileNotFoundException("Image not found in database: " + imageName);
     }
